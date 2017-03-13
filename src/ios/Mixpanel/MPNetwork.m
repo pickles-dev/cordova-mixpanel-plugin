@@ -12,7 +12,7 @@
 #import "Mixpanel.h"
 #import <UIKit/UIKit.h>
 
-#define MIXPANEL_NO_NETWORK_ACTIVITY_INDICATOR (defined(MIXPANEL_APP_EXTENSION) || defined(MIXPANEL_TVOS_EXTENSION) || defined(MIXPANEL_WATCH_EXTENSION))
+#define MIXPANEL_NO_NETWORK_ACTIVITY_INDICATOR (defined(MIXPANEL_APP_EXTENSION) || defined(MIXPANEL_TVOS_EXTENSION))
 
 static const NSUInteger kBatchSize = 50;
 
@@ -42,18 +42,18 @@ static const NSUInteger kBatchSize = 50;
         MPLogDebug(@"Attempted to flush to %lu, when we still have a timeout. Ignoring flush.", endpoint);
         return;
     }
-    
+
     while (queue.count > 0) {
         NSUInteger batchSize = MIN(queue.count, kBatchSize);
         NSArray *batch = [queue subarrayWithRange:NSMakeRange(0, batchSize)];
-        
+
         NSString *requestData = [MPNetwork encodeArrayForAPI:batch];
         NSString *postBody = [NSString stringWithFormat:@"ip=%d&data=%@", self.useIPAddressForGeoLocation, requestData];
         MPLogDebug(@"%@ flushing %lu of %lu to %lu: %@", self, (unsigned long)batch.count, (unsigned long)queue.count, endpoint, queue);
         NSURLRequest *request = [self buildPostRequestForEndpoint:endpoint andBody:postBody];
-        
+
         [self updateNetworkActivityIndicator:YES];
-        
+
         __block BOOL didFail = NO;
         dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
         NSURLSession *session = [NSURLSession sharedSession];
@@ -61,7 +61,7 @@ static const NSUInteger kBatchSize = 50;
                                                                   NSURLResponse *urlResponse,
                                                                   NSError *error) {
             [self updateNetworkActivityIndicator:NO];
-            
+
             BOOL success = [self handleNetworkResponse:(NSHTTPURLResponse *)urlResponse withError:error];
             if (error || !success) {
                 MPLogError(@"%@ network failure: %@", self, error);
@@ -73,16 +73,16 @@ static const NSUInteger kBatchSize = 50;
                     MPLogInfo(@"%@ %lu api rejected some items", self, endpoint);
                 }
             }
-            
+
             dispatch_semaphore_signal(semaphore);
         }] resume];
-        
+
         dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-        
+
         if (didFail) {
             break;
         }
-        
+
         [queue removeObjectsInArray:batch];
     }
 }
@@ -90,7 +90,7 @@ static const NSUInteger kBatchSize = 50;
 - (BOOL)handleNetworkResponse:(NSHTTPURLResponse *)response withError:(NSError *)error {
     MPLogDebug(@"HTTP Response: %@", response.allHeaderFields);
     MPLogDebug(@"HTTP Error: %@", error.localizedDescription);
-    
+
     BOOL failed = [MPNetwork parseHTTPFailure:response withError:error];
     if (failed) {
         MPLogDebug(@"Consecutive network failures: %lu", self.consecutiveFailures);
@@ -99,20 +99,20 @@ static const NSUInteger kBatchSize = 50;
         MPLogDebug(@"Consecutive network failures reset to 0");
         self.consecutiveFailures = 0;
     }
-    
+
     // Did the server response with an HTTP `Retry-After` header?
     NSTimeInterval retryTime = [MPNetwork parseRetryAfterTime:response];
     if (self.consecutiveFailures >= 2) {
-        
+
         // Take the larger of exponential back off and server provided `Retry-After`
         retryTime = MAX(retryTime, [MPNetwork calculateBackOffTimeFromFailures:self.consecutiveFailures]);
     }
-    
+
     NSDate *retryDate = [NSDate dateWithTimeIntervalSinceNow:retryTime];
     self.requestsDisabledUntilTime = [retryDate timeIntervalSince1970];
-    
+
     MPLogDebug(@"Retry backoff time: %.2f - %@", retryTime, retryDate);
-    
+
     return !failed;
 }
 
@@ -124,7 +124,7 @@ static const NSUInteger kBatchSize = 50;
     NSURLQueryItem *itemLib = [NSURLQueryItem queryItemWithName:@"lib" value:@"iphone"];
     NSURLQueryItem *itemToken = [NSURLQueryItem queryItemWithName:@"token" value:token];
     NSURLQueryItem *itemDistinctID = [NSURLQueryItem queryItemWithName:@"distinct_id" value:distinctID];
-    
+
     // Convert properties dictionary to a string
     NSData *propertiesData = [NSJSONSerialization dataWithJSONObject:properties
                                                              options:0
@@ -132,7 +132,7 @@ static const NSUInteger kBatchSize = 50;
     NSString *propertiesString = [[NSString alloc] initWithData:propertiesData
                                                        encoding:NSUTF8StringEncoding];
     NSURLQueryItem *itemProperties = [NSURLQueryItem queryItemWithName:@"properties" value:propertiesString];
-    
+
     return @[ itemVersion, itemLib, itemToken, itemDistinctID, itemProperties ];
 }
 
@@ -179,9 +179,9 @@ static const NSUInteger kBatchSize = 50;
     [request setValue:@"gzip" forHTTPHeaderField:@"Accept-Encoding"];
     [request setHTTPMethod:method];
     [request setHTTPBody:[body dataUsingEncoding:NSUTF8StringEncoding]];
-    
+
     MPLogDebug(@"%@ http request: %@?%@", self, request, body);
-    
+
     return [request copy];
 }
 
@@ -201,11 +201,11 @@ static const NSUInteger kBatchSize = 50;
     @catch (NSException *exception) {
         MPLogError(@"exception encoding api data: %@", exception);
     }
-    
+
     if (error) {
         MPLogError(@"error encoding api data: %@", error);
     }
-    
+
     return data;
 }
 
@@ -218,13 +218,13 @@ static const NSUInteger kBatchSize = 50;
     if ([obj isKindOfClass:NSString.class] || [obj isKindOfClass:NSNumber.class] || [obj isKindOfClass:NSNull.class]) {
         return obj;
     }
-    
+
     if ([obj isKindOfClass:NSDate.class]) {
         return [[self dateFormatter] stringFromDate:obj];
     } else if ([obj isKindOfClass:NSURL.class]) {
         return [obj absoluteString];
     }
-    
+
     // recurse on containers
     if ([obj isKindOfClass:NSArray.class]) {
         NSMutableArray *a = [NSMutableArray array];
@@ -233,7 +233,7 @@ static const NSUInteger kBatchSize = 50;
         }
         return [NSArray arrayWithArray:a];
     }
-    
+
     if ([obj isKindOfClass:NSDictionary.class]) {
         NSMutableDictionary *d = [NSMutableDictionary dictionary];
         for (id key in obj) {
@@ -247,7 +247,7 @@ static const NSUInteger kBatchSize = 50;
         }
         return [NSDictionary dictionaryWithDictionary:d];
     }
-    
+
     // default to sending the object's description
     NSString *s = [obj description];
     MPLogWarning(@"%@ property values should be valid json types. got: %@. coercing to: %@", self, [obj class], s);

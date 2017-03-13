@@ -67,10 +67,8 @@
 @property (nonatomic, getter=isValidationEnabled) BOOL validationEnabled;
 #endif
 
-#if !defined(MIXPANEL_WATCH_EXTENSION)
 @property (nonatomic, assign) UIBackgroundTaskIdentifier taskId;
 @property (nonatomic, strong) UIViewController *notificationViewController;
-#endif
 
 // re-declare internally as readwrite
 @property (atomic, strong) MixpanelPeople *people;
@@ -121,4 +119,3 @@
 #endif
 
 @end
-

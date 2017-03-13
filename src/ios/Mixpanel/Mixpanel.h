@@ -7,15 +7,11 @@
     #define MIXPANEL_TVOS_EXTENSION 1
 #endif
 
-#if TARGET_OS_WATCH
-    #define MIXPANEL_WATCH_EXTENSION 1
-#endif
-
 #define MIXPANEL_NO_EXCEPTION_HANDLING (defined(MIXPANEL_APP_EXTENSION))
-#define MIXPANEL_FLUSH_IMMEDIATELY (defined(MIXPANEL_APP_EXTENSION) || defined(MIXPANEL_WATCH_EXTENSION))
-#define MIXPANEL_NO_REACHABILITY_SUPPORT (defined(MIXPANEL_APP_EXTENSION) || defined(MIXPANEL_TVOS_EXTENSION) || defined(MIXPANEL_WATCH_EXTENSION))
-#define MIXPANEL_NO_AUTOMATIC_EVENTS_SUPPORT (defined(MIXPANEL_APP_EXTENSION) || defined(MIXPANEL_TVOS_EXTENSION) || defined(MIXPANEL_WATCH_EXTENSION))
-#define MIXPANEL_NO_SURVEY_NOTIFICATION_AB_TEST_SUPPORT (defined(MIXPANEL_APP_EXTENSION) || defined(MIXPANEL_TVOS_EXTENSION) || defined(MIXPANEL_WATCH_EXTENSION))
+#define MIXPANEL_FLUSH_IMMEDIATELY (defined(MIXPANEL_APP_EXTENSION))
+#define MIXPANEL_NO_REACHABILITY_SUPPORT (defined(MIXPANEL_APP_EXTENSION) || defined(MIXPANEL_TVOS_EXTENSION))
+#define MIXPANEL_NO_AUTOMATIC_EVENTS_SUPPORT (defined(MIXPANEL_APP_EXTENSION) || defined(MIXPANEL_TVOS_EXTENSION))
+#define MIXPANEL_NO_SURVEY_NOTIFICATION_AB_TEST_SUPPORT (defined(MIXPANEL_APP_EXTENSION) || defined(MIXPANEL_TVOS_EXTENSION))
 
 @class    MixpanelPeople, MPSurvey;
 @protocol MixpanelDelegate;
@@ -160,10 +156,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!
  @property
- 
+
  @abstract
  Determines whether a valid survey is available to show to the user.
- 
+
  @discussion
  If we haven't fetched the surveys yet, this will return NO. Otherwise
  it will return yes if there is at least one survey available.
@@ -172,11 +168,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!
  @property
- 
+
  @abstract
  Returns a list of available surveys. You can then call <code>showSurveyWithID:</code>
  and pass in <code>survey.ID</code>
- 
+
  @discussion
  If we haven't fetched the surveys yet, this will return nil.
  */
@@ -224,14 +220,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!
  @property
- 
+
  @abstract
- Controls whether to automatically send the client IP Address as part of 
+ Controls whether to automatically send the client IP Address as part of
  event tracking. With an IP address, geo-location is possible down to neighborhoods
  within a city, although the Mixpanel Dashboard will just show you city level location
  specificity. For privacy reasons, you may be in a situation where you need to forego
  effectively having access to such granular location information via the IP Address.
- 
+
  @discussion
  Defaults to YES.
  */
@@ -239,12 +235,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!
  @property
- 
+
  @abstract
- Controls whether to enable the visual test designer for A/B testing and codeless on mixpanel.com. 
+ Controls whether to enable the visual test designer for A/B testing and codeless on mixpanel.com.
  You will be unable to edit A/B tests and codeless events with this disabled, however *previously*
  created A/B tests and codeless events will still be delivered.
- 
+
  @discussion
  Defaults to YES.
  */
@@ -252,19 +248,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!
  @property
- 
+
  @abstract
  Controls whether to enable the run time debug logging at all levels. Note that the
  Mixpanel SDK uses Apple System Logging to forward log messages to `STDERR`, this also
- means that mixpanel logs are segmented by log level. Settings this to `YES` will enable 
+ means that mixpanel logs are segmented by log level. Settings this to `YES` will enable
  Mixpanel logging at the following levels:
- 
-   * Error - Something has failed 
+
+   * Error - Something has failed
    * Warning - Something is amiss and might fail if not corrected
    * Info - The lowest priority that is normally logged, purely informational in nature
    * Debug - Information useful only to developers, and normally not logged.
- 
- 
+
+
  @discussion
  Defaults to NO.
  */
@@ -284,13 +280,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!
  @property
- 
+
  @abstract
  If set, determines the background color of mini notifications.
 
  @discussion
- If this isn't set, we default to either the color of the UINavigationBar of the top 
- UINavigationController that is showing when the notification is presented, the 
+ If this isn't set, we default to either the color of the UINavigationBar of the top
+ UINavigationController that is showing when the notification is presented, the
  UINavigationBar default color for the app or the UITabBar default color.
  */
 @property (atomic, strong, nullable) UIColor *miniNotificationBackgroundColor;
@@ -362,8 +358,8 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion
  The API must be initialized with <code>sharedInstanceWithToken:</code> or
  <code>initWithToken:launchOptions:andFlushInterval</code> before calling this class method.
- This method will return <code>nil</code> if there are no instances created. If there is more than 
- one instace, it will return the first one that was created by using <code>sharedInstanceWithToken:</code> 
+ This method will return <code>nil</code> if there are no instances created. If there is more than
+ one instace, it will return the first one that was created by using <code>sharedInstanceWithToken:</code>
  or <code>initWithToken:launchOptions:andFlushInterval:</code>.
  */
 + (Mixpanel *)sharedInstance;
@@ -638,10 +634,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!
  @method
- 
+
  @abstract
  Calls flush, then optionally archives and calls a handler when finished.
- 
+
  @discussion
  When calling <code>flush</code> manually, it is sometimes important to verify
  that the flush has finished before further action is taken. This is
@@ -804,7 +800,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Deprecated
 /*!
  @property
- 
+
  @abstract
  Current user's name in Mixpanel Streams.
  */

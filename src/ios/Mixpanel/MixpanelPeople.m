@@ -12,10 +12,6 @@
 #import "MixpanelPrivate.h"
 #import "MPLogger.h"
 
-#if defined(MIXPANEL_WATCH_EXTENSION)
-#import "MixpanelWatchProperties.h"
-#endif
-
 @implementation MixpanelPeople
 
 - (instancetype)initWithMixpanel:(Mixpanel *)mixpanel
@@ -35,11 +31,7 @@
 }
 
 - (NSString *)deviceSystemVersion {
-#if defined(MIXPANEL_WATCH_EXTENSION)
-    return [MixpanelWatchProperties systemVersion];
-#else
     return [UIDevice currentDevice].systemVersion;
-#endif
 }
 
 - (NSDictionary *)collectAutomaticPeopleProperties
